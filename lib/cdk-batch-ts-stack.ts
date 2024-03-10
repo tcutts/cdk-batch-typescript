@@ -83,7 +83,7 @@ export class CdkBatchTsStack extends cdk.Stack {
       environment: {
         JOBDEF: job_def.jobDefinitionArn,
         JOBQUEUE: job_queue.jobQueueName,
-        OUTPUT_BUCKET: output_bucket.bucketName,
+        S3_OUTPUT_BUCKET: output_bucket.bucketName,
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
       },
     });

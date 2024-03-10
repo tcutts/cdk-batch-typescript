@@ -2,6 +2,7 @@ import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 import * as budgets from "aws-cdk-lib/aws-budgets";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as njsl from "aws-cdk-lib/aws-lambda-nodejs";
 import * as batch from "aws-cdk-lib/aws-batch";
 import * as sns from "aws-cdk-lib/aws-sns";
 import * as les from "aws-cdk-lib/aws-lambda-event-sources";
@@ -81,14 +82,18 @@ export class QueueDisablingBudget extends Construct {
   }
 
   disableJobQueueOnAlert(jobQueue: batch.IJobQueue) {
-    const budgetAlertFunction = new lambda.Function(this, "BudgetExceeded", {
-      runtime: lambda.Runtime.PYTHON_3_12,
-      code: lambda.Code.fromAsset("lambda/budget_exceeded"),
-      handler: "budget_exceeded.handler",
-      environment: {
-        JOBQUEUE: jobQueue.jobQueueName,
-      },
-    });
+    const budgetAlertFunction = new njsl.NodejsFunction(
+      this,
+      "BudgetExceeded",
+      {
+        runtime: lambda.Runtime.NODEJS_18_X,
+        entry: "lambda/budget_exceeded/index.ts",
+        handler: "handler",
+        environment: {
+          JOBQUEUE: jobQueue.jobQueueName,
+        },
+      }
+    );
 
     // Allow the lambda function to inactivate the queue
     budgetAlertFunction.role?.attachInlinePolicy(
