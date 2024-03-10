@@ -1,17 +1,26 @@
-// import * as cdk from 'aws-cdk-lib';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as CdkBatchTs from '../lib/cdk-batch-ts-stack';
+import * as cdk from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import * as CdkBatchTs from '../lib/cdk-batch-ts-stack';
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/cdk-batch-ts-stack.ts
-test('SQS Queue Created', () => {
-//   const app = new cdk.App();
-//     // WHEN
-//   const stack = new CdkBatchTs.CdkBatchTsStack(app, 'MyTestStack');
-//     // THEN
-//   const template = Template.fromStack(stack);
+const app = new cdk.App()
+const stack = new CdkBatchTs.CdkBatchTsStack(app, "TestStack")
+const template = Template.fromStack(stack)
 
-//   template.hasResourceProperties('AWS::SQS::Queue', {
-//     VisibilityTimeout: 300
-//   });
-});
+test('Buckets', () => {
+    template.resourceCountIs("AWS::S3::Bucket", 2)
+})
+
+test('SNS', () => {
+    template.resourceCountIs("AWS::SNS::Topic", 2)
+    template.findResources("AWS::SNS::Subscription", { "Protocol": "email" })
+})
+
+test('Batch', () => {
+    template.hasResourceProperties("AWS::Batch::JobDefinition", { "Type": "container" })
+    template.resourceCountIs("AWS::Batch::JobQueue", 1)
+    template.resourceCountIs("AWS::Batch::ComputeEnvironment", 1)
+})
+
+test('Budget', () => {
+    template.resourceCountIs("AWS::Budgets::Budget", 1)
+})
