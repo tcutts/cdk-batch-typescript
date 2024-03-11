@@ -10,6 +10,10 @@ export const handler: Handler = async function (event: any) {
     state: "DISABLED",
   });
 
-  const response = await batch.send(command);
-  console.log(JSON.stringify(response));
+  try {
+    const data = await batch.send(command);
+    console.log(data);
+  } catch (err) {
+    console.log(err);
+  }
 };
